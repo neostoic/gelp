@@ -11,14 +11,18 @@ object YelpAPI {
   private val TOKEN_SECRET = ""
   private val YELP_SEARCH_URL = "http://api.yelp.com/v2/search"
 
-  case class YelpBusiness(
-    name: String,
-    rating: Double,
-    reviewCount: BigInt,
-    phone: String,
-    address: List[String],
-    coordinate: (Double, Double)
-  )
+  case class Coordinate(latitude: Double, longitude: Double)
+  case class Location(postal_code: String, address: List[String], coordinate: Coordinate)
+  case class Business(id: String, name: String, rating: Double, review_count: BigInt, phone: Option[String], location: Location) {
+    def toDisplayString =
+      s"""
+         |ID: $id
+         |Name: $name
+         |Rating: $rating
+         |Reviews: $review_count
+         |Phone: ${phone.getOrElse("N/A")}
+       """.stripMargin
+  }
 
   def runYelpSearch() {
     println("Let's get this Yelp party started!")
@@ -36,24 +40,12 @@ object YelpAPI {
     val response = request.send()
     println(if (response.isSuccessful) "Success!" else "Failure!")
 
-    // JSON Documentation: https://github.com/json4s/json4s
     val jsonResp = parse(response.getBody)
 
-    val allResults: List[YelpBusiness] = for {
-      JArray(businesses) <- jsonResp \\ "businesses"
-      JObject(business) <- businesses
-      JField("name", JString(name)) <- business
-      JField("rating", JDouble(rating)) <- business
-      JField("review_count", JInt(reviewCount)) <- business
-      JField("phone", JString(phone)) <- business
-      JField("location", JObject(location)) <- business
-      JField("address", JArray(address)) <- location
-      JField("coordinate", JObject(coordinate)) <- location
-      JField("latitude", JDouble(latitude)) <- coordinate
-      JField("longitude", JDouble(longitude)) <- coordinate
-    } yield YelpBusiness(name, rating, reviewCount, phone, address.map(_.toString), (latitude, longitude))
+    implicit val formats = DefaultFormats
+    val allBusinessResults = (jsonResp \ "businesses").extract[List[Business]]
 
-    allResults.foreach(println)
+    allBusinessResults.map(_.toDisplayString).foreach(println)
     println(pretty(render(jsonResp)))
   }
 
