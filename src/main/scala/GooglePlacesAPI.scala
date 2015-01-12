@@ -20,6 +20,7 @@ object GooglePlacesAPI {
     // JSON Documentation: https://github.com/json4s/json4s
     println(s"Status is: ${ (jsonResp \ "status").values }")
     println(pretty(render(jsonResp)))
+    sys.exit()
   }
 
   // Documentation: https://developers.google.com/places/documentation/search#PlaceSearchRequests
@@ -27,7 +28,7 @@ object GooglePlacesAPI {
   def searchQueryParams = Map(
     "key" -> SERVER_API_KEY,
     "location" -> "37.776472,-122.437833", // The Mill
-    "radius" -> "50",
+    "radius" -> "30",
     "types" -> "bakery|bar|cafe|food|restaurant"
   )
 
