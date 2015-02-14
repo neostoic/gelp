@@ -1,6 +1,6 @@
 object CirclePacker {
 
-  def generateGrid(vertices: List[Coordinate], meshRadius: Int): List[Coordinate] = {
+  def generateSearchCoordinates(vertices: List[Coordinate], meshRadius: Int): List[Coordinate] = {
     // Step 1: Create an encompassing rectangle.
     val (minCoord, maxCoord) = getEncompassingRectangle(vertices)
 
@@ -8,7 +8,6 @@ object CirclePacker {
     val encompassingRectangleMesh = meshRectangle(minCoord, maxCoord, meshRadius)
 
     // Step 3: Reject the coordinates outside of the area of interest.
-    // TODO: Verify with plot.
     maskMesh(encompassingRectangleMesh, mask = vertices)
   }
 
