@@ -11,7 +11,6 @@ object GooglePlacesAPI {
   private val PLACE_DETAILS_URL = url("https://maps.googleapis.com/maps/api/place/details/json")
 
   case class PlaceID(place_id: String)
-  case class Coordinate(lat: Double, lng: Double)
   case class Geometry(location: Coordinate)
   case class Business(place_id: String, name: String, rating: Double, user_ratings_total: BigInt, price_level: BigInt, formatted_address: String, website: Option[String], formatted_phone_number: Option[String], geometry: Geometry)  {
     def toDisplayString =
@@ -24,10 +23,10 @@ object GooglePlacesAPI {
        """.stripMargin
   }
 
-  def runGoogleSearch() {
+  def runGoogleSearch(coord: Coordinate, radius: Int = 50) {
     println("Let's get this Google party started!")
 
-    val response = send(searchRequest)
+    val response = send(searchRequest(coord, radius))
 
     implicit val formats = DefaultFormats
     val placeIDs = (response \ "results").extract[List[PlaceID]]
@@ -49,11 +48,10 @@ object GooglePlacesAPI {
   }
 
   // Documentation: https://developers.google.com/places/documentation/search#PlaceSearchRequests
-  def searchRequest = NEARBY_SEARCH_URL <<? searchQueryParams
-  def searchQueryParams = Map(
+  def searchRequest(coord: Coordinate, radius: Int) = NEARBY_SEARCH_URL <<? Map(
     "key" -> SERVER_API_KEY,
-    "location" -> "37.776472,-122.437833", // The Mill
-    "radius" -> "30",
+    "location" -> s"${coord.lat},${coord.long}",
+    "radius" -> radius.toString,
     "types" -> "bakery|bar|cafe|food|restaurant"
   )
 

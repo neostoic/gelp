@@ -18,7 +18,6 @@ object YelpAPI {
     .build()
   private lazy val accessToken = new Token(TOKEN, TOKEN_SECRET)
 
-  case class Coordinate(latitude: Double, longitude: Double)
   case class Location(postal_code: String, address: List[String], coordinate: Coordinate)
   case class Business(id: String, name: String, rating: Double, review_count: BigInt, phone: Option[String], location: Location) {
     def toDisplayString =
@@ -31,10 +30,10 @@ object YelpAPI {
        """.stripMargin
   }
 
-  def runYelpSearch() {
+  def runYelpSearch(coord: Coordinate, radius: Int = 50) {
     println("Let's get this Yelp party started!")
 
-    val jsonResp = send(s"$YELP_SEARCH_URL?$yelpQueryParams")
+    val jsonResp = send(s"$YELP_SEARCH_URL?${yelpQueryParams(coord, radius)}")
 
     implicit val formats = DefaultFormats
     val allBusinessResults = (jsonResp \ "businesses").extract[List[Business]]
@@ -57,8 +56,10 @@ object YelpAPI {
     jsonResp
   }
 
-  def yelpQueryParams = Map(
-    "ll" -> "37.776472,-122.437833", // The Mill
-    "radius_filter" -> "30"
+  // Documentation: http://www.yelp.com/developers/documentation/v2/search_api
+  def yelpQueryParams(coord: Coordinate, radius: Int) = Map(
+    "ll" -> s"${coord.lat},${coord.long}",
+    "radius_filter" -> radius,
+    "category_filter" -> "food,restaurants,nightlife"
   ).map({ case(key, value) => s"$key=$value" }).mkString("&")
 }
