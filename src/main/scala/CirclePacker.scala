@@ -7,7 +7,7 @@ object CirclePacker {
     // Step 2: Mesh the encompassing rectangle.
     val encompassingRectangleMesh = meshRectangle(minCoord, maxCoord, meshRadius)
 
-    // Step 3: Reject the coordinates outside of the area of interest.
+    // Step 3: Mask the grid to the desired area.
     maskMesh(encompassingRectangleMesh, mask = vertices)
   }
 
@@ -33,7 +33,7 @@ object CirclePacker {
 
   def pointInPolygon(point: Coordinate, vertices: List[Coordinate]): Boolean = {
     (vertices.last :: vertices).sliding(2).foldLeft(false) { case (cond, List(i, j)) =>
-      val insideLatBounds = (point.lat >= i.lat && point.lat < j.lat) || (point.lat >= j.lat && point.lat < i.lat)
+      val insideLatBounds = (i.lat > point.lat) != (j.lat > point.lat)
       val longValueOnBoundary = i.long.value + (j.long.value - i.long.value) * (point.lat.value - i.lat.value) / (j.lat.value - i.lat.value)
       val insideLongBounds = point.long.value < longValueOnBoundary
 

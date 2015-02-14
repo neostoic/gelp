@@ -6,8 +6,8 @@ object Gelp {
     val vertices = List(
         (37.79255, -122.44780), // NW
         (37.79489, -122.42992), // NE
-        (37.77691, -122.44492), // SW
-        (37.77922, -122.42679)  // SE
+        (37.77922, -122.42679), // SE
+        (37.77691, -122.44492)  // SW
       ).map(coord => Coordinate(Latitude(coord._1), Longitude(coord._2)))
 
     val coordinatesToSearch = CirclePacker.generateSearchCoordinates(vertices, meshRadius = 100)
