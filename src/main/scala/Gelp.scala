@@ -12,13 +12,13 @@ object Gelp {
 
     val coordinatesToSearch = CirclePacker.generateSearchCoordinates(vertices, meshRadius = 100)
 
-    shuffle(coordinatesToSearch).take(5).foreach(coord => {
-      println(s"Running search at coordinate: ${coord.toSearchString}")
-      YelpAPI.runYelpSearch(coord, radius = 100)
-      GooglePlacesAPI.runGoogleSearch(coord, radius = 100)
-      Thread.sleep(nextInt(12000))
-    })
-
-    sys.exit()
+    try {
+      shuffle(coordinatesToSearch).take(5).foreach(coord => {
+        println(s"Running search at coordinate: ${coord.toSearchString}")
+        YelpAPI.runYelpSearch(coord, radius = 100)
+        GooglePlacesAPI.runGoogleSearch(coord, radius = 100)
+        Thread.sleep(nextInt(12000))
+      })
+    } finally { sys.exit() }
   }
 }
