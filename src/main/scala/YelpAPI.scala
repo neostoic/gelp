@@ -39,7 +39,10 @@ object YelpAPI {
     implicit val formats = DefaultFormats
     val allBusinessResults = (jsonResp \ "businesses").extract[List[Business]]
 
-    allBusinessResults.map(_.toDisplayString).foreach(println)
+    allBusinessResults.foreach(business => {
+      println(business.toDisplayString)
+      YelpDBM.storeResult(business)
+    })
   }
 
   def send(requestURL: String) = {

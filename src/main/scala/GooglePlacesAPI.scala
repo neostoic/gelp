@@ -34,7 +34,10 @@ object GooglePlacesAPI {
     val placeDetails = placeIDs.map(id => send(detailsRequest(id)))
     val businesses = placeDetails.map(placeDetail => (placeDetail \ "result").extract[Business])
 
-    businesses.map(_.toDisplayString).foreach(println)
+    businesses.foreach(business => {
+      println(business.toDisplayString)
+      GooglePlacesDBM.storeResult(business)
+    })
   }
 
   def send(request: Req) = {
