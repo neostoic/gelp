@@ -3,6 +3,8 @@ import Defaults._
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 
+import scala.util.Random._
+
 object GooglePlacesAPI {
 
   private val BROWSER_API_KEY = ""
@@ -31,12 +33,19 @@ object GooglePlacesAPI {
 
     implicit val formats = DefaultFormats
     val placeIDs = (response \ "results").extract[List[PlaceID]]
-    val placeDetails = placeIDs.map(id => send(detailsRequest(id)))
+    val placeDetails = placeIDs.map(id => {
+      Thread.sleep(nextInt(700))
+      send(detailsRequest(id))
+    })
     val businesses = placeDetails.map(placeDetail => (placeDetail \ "result").extract[Business])
 
     businesses.foreach(business => {
       println(business.toDisplayString)
+
       GooglePlacesDBM.storeResult(business)
+
+      val coord = business.geometry.location
+      CoordinateDBM.recordGooglePlaceMatch(business.place_id, coord.lat, coord.lng, radius)
     })
   }
 
@@ -45,7 +54,7 @@ object GooglePlacesAPI {
     val jsonResp = parse(s"""${ rawResp() }""")
 
     println(s"\nStatus is: ${ (jsonResp \ "status").values }")
-    println(pretty(render(jsonResp)))
+//    println(pretty(render(jsonResp)))
 
     jsonResp
   }

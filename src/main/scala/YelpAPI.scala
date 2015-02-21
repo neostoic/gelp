@@ -41,7 +41,11 @@ object YelpAPI {
 
     allBusinessResults.foreach(business => {
       println(business.toDisplayString)
+
       YelpDBM.storeResult(business)
+
+      val coord = business.location.coordinate
+      CoordinateDBM.recordYelpMatch(business.id, coord.latitude, coord.longitude, radius)
     })
   }
 
@@ -55,7 +59,7 @@ object YelpAPI {
     val jsonResp = parse(rawResp.getBody)
 
     println(if (rawResp.isSuccessful) "Success!" else "Failure!")
-    println(pretty(render(jsonResp)))
+//    println(pretty(render(jsonResp)))
 
     jsonResp
   }
