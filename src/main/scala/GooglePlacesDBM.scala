@@ -16,7 +16,7 @@ import GooglePlacesAPI.Business
 //   PRIMARY KEY (`place_id`)
 //);
 object GooglePlacesDBM {
-  val table = Table("google_places")
+  val google_places = Table("google_places")
   val columns = List(
     "place_id", // String
     "name", // String
@@ -46,6 +46,6 @@ object GooglePlacesDBM {
 
     val fields = (columns zip values).collect({ case(col, Some(value)) => (col, value) })
 
-    DB.insertInto(table, fields)
+    DB.insertInto(google_places, fields)
   }
 }

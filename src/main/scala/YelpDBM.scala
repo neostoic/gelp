@@ -1,7 +1,7 @@
 import DB._
 import YelpAPI.Business
 
-//CREATE TABLE IF NOT EXISTS `yelp` (
+//CREATE TABLE IF NOT EXISTS `yelp_businesses` (
 //   `id` VARCHAR(128) NOT NULL,
 //   `name` VARCHAR(128) NOT NULL,
 //   `rating` DOUBLE NOT NULL,
@@ -15,7 +15,7 @@ import YelpAPI.Business
 //   PRIMARY KEY (`id`)
 //);
 object YelpDBM {
-  val table = Table("yelp")
+  val yelp_businesses = Table("yelp_businesses")
   val columns = List(
     "id", // String
     "name", // String
@@ -43,6 +43,6 @@ object YelpDBM {
 
     val fields = (columns zip values).collect({ case(col, Some(value)) => (col, value) })
 
-    DB.insertInto(table, fields)
+    DB.insertInto(yelp_businesses, fields)
   }
 }
