@@ -10,14 +10,16 @@ object Gelp {
         (37.77691, -122.44492)  // SW
       ).map(coord => Coordinate(Latitude(coord._1), Longitude(coord._2)))
 
-    val coordinatesToSearch = CirclePacker.generateSearchCoordinates(vertices, meshRadius = 100)
+    val coordinatesToSearch = CirclePacker.generateSearchCoordinates(vertices, meshRadius = 75)
+    val numSearches = coordinatesToSearch.size
 
     try {
-      shuffle(coordinatesToSearch).take(5).foreach(coord => {
+      shuffle(coordinatesToSearch).zipWithIndex.foreach({ case(coord, i) =>
+        println(s"\nProgress: ${(i.toFloat / numSearches) * 100}%, Remaining: ${numSearches - i}\n")
         println(s"Running search at coordinate: ${coord.toSearchString}")
-        YelpAPI.runYelpSearch(coord, radius = 100)
-        GooglePlacesAPI.runGoogleSearch(coord, radius = 100)
-        Thread.sleep(nextInt(12000))
+        YelpAPI.runYelpSearch(coord, radius = 75)
+        GooglePlacesAPI.runGoogleSearch(coord, radius = 75)
+        Thread.sleep(nextInt(22000) + 2000)
       })
     } finally { sys.exit() }
   }
