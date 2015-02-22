@@ -7,7 +7,7 @@ import GooglePlacesAPI.Business
 //   `rating` DOUBLE,
 //   `user_ratings_total` BIGINT,
 //   `price_level` BIGINT,
-//   `formatted_address` VARCHAR(256) NOT NULL,
+//   `formatted_address` VARCHAR(128) NOT NULL,
 //   `website` VARCHAR(256),
 //   `formatted_phone_number` VARCHAR(128),
 //   `latitude` DOUBLE NOT NULL,
