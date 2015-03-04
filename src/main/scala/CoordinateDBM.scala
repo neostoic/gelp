@@ -1,47 +1,49 @@
-import DB.{Column, Table}
+import GooglePlacesDBM.google_places
+import YelpDBM.yelp_businesses
+import com.clinkle.sql.{INSERT, Table}
 
-//CREATE TABLE IF NOT EXISTS `google_place_matches` (
-//   `place_id` VARCHAR(128) NOT NULL,
-//   `latitude` DOUBLE NOT NULL,
-//   `longitude` DOUBLE NOT NULL,
-//   `radius` BIGINT NOT NULL,
-//
-//   UNIQUE KEY `entry` (`place_id`, `latitude`, `longitude`, `radius`),
-//   FOREIGN KEY (`place_id`) REFERENCES `google_places`(`place_id`)
-//);
-
-//CREATE TABLE IF NOT EXISTS `yelp_business_matches` (
-//   `id` VARCHAR(128) NOT NULL,
-//   `latitude` DOUBLE NOT NULL,
-//   `longitude` DOUBLE NOT NULL,
-//   `radius` BIGINT NOT NULL,
-//
-//   UNIQUE KEY `entry` (`id`, `latitude`, `longitude`, `radius`),
-//   FOREIGN KEY (`id`) REFERENCES `yelp`(`id`)
-//);
 object CoordinateDBM {
-  val google_place_matches = Table("google_place_matches")
-  val yelp_business_matches = Table("yelp_business_matches")
-
-  def recordGooglePlaceMatch(id: String, lat: Double, lng: Double, radius: BigInt) {
-    val fields = List(
-      (Column("place_id"), id),
-      (Column("latitude"), lat),
-      (Column("longitude"), lng),
-      (Column("radius"), radius)
+  def recordGooglePlaceMatch(id: String, lat: Double, lng: Double, rad: Long) {
+    import google_place_matches._
+    DBRunner.runInNewTransaction(implicit executor =>
+      INSERT.INTO(google_place_matches).SET(
+        place_id := id,
+        latitude := lat,
+        longitude := lng,
+        radius := rad
+      ).exec
     )
-
-    DB.insertInto(google_place_matches, fields)
   }
 
-  def recordYelpMatch(id: String, lat: Double, lng: Double, radius: BigInt) {
-    val fields = List(
-      (Column("id"), id),
-      (Column("latitude"), lat),
-      (Column("longitude"), lng),
-      (Column("radius"), radius)
+  def recordYelpMatch(yelpID: String, lat: Double, lng: Double, rad: Long) {
+    import yelp_business_matches._
+    DBRunner.runInNewTransaction(implicit executor =>
+      INSERT.INTO(yelp_business_matches).SET(
+        id := yelpID,
+        latitude := lat,
+        longitude := lng,
+        radius := rad
+      ).exec
     )
+  }
 
-    DB.insertInto(yelp_business_matches, fields)
+  object google_place_matches extends Table {
+    val place_id: Column[String] = VARCHAR(128)
+    val latitude: Column[Double] = DOUBLE
+    val longitude: Column[Double] = DOUBLE
+    val radius: Column[Long] = BIGINT
+
+    UNIQUE_KEY(place_id, latitude, longitude, radius)
+    FOREIGN_KEY(place_id).REFERENCES(google_places.place_id)
+  }
+
+  object yelp_business_matches extends Table {
+    val id: Column[String] = VARCHAR(128)
+    val latitude: Column[Double] = DOUBLE
+    val longitude: Column[Double] = DOUBLE
+    val radius: Column[Long] = BIGINT
+
+    UNIQUE_KEY(id, latitude, longitude, radius)
+    FOREIGN_KEY(id).REFERENCES(yelp_businesses.id)
   }
 }

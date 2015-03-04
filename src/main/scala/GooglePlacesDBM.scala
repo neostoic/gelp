@@ -1,51 +1,35 @@
-import DB._
 import GooglePlacesAPI.Business
+import com.clinkle.sql.{INSERT, Table}
 
-//CREATE TABLE IF NOT EXISTS `google_places` (
-//   `place_id` VARCHAR(128) NOT NULL,
-//   `name` VARCHAR(128) NOT NULL,
-//   `rating` DOUBLE,
-//   `user_ratings_total` BIGINT,
-//   `price_level` BIGINT,
-//   `formatted_address` VARCHAR(128) NOT NULL,
-//   `website` VARCHAR(256),
-//   `formatted_phone_number` VARCHAR(128),
-//   `latitude` DOUBLE NOT NULL,
-//   `longitude` DOUBLE NOT NULL,
-//
-//   PRIMARY KEY (`place_id`)
-//);
 object GooglePlacesDBM {
-  val google_places = Table("google_places")
-  val columns = List(
-    "place_id", // String
-    "name", // String
-    "rating", // Option[Double]
-    "user_ratings_total", // Option[BigInt]
-    "price_level", // Option[BigInt]
-    "formatted_address", // String
-    "website", // Option[String]
-    "formatted_phone_number", // Option[String]
-    "latitude", // Double
-    "longitude" // Double
-  ).map(Column)
-
   def storeResult(business: Business) {
-    val values = List(
-      Some(business.place_id),
-      Some(business.name),
-      business.rating,
-      business.user_ratings_total,
-      business.price_level,
-      Some(business.formatted_address),
-      business.website,
-      business.formatted_phone_number,
-      Some(business.geometry.location.lat),
-      Some(business.geometry.location.lng)
+    import GooglePlacesDBM.google_places._
+    DBRunner.runInNewTransaction(implicit executor =>
+      INSERT.INTO(google_places).SET(
+        place_id := business.place_id,
+        name := business.name,
+        rating := business.rating,
+        user_ratings_total := business.user_ratings_total.map(_.toLong),
+        price_level := business.price_level.map(_.toLong),
+        formatted_address := business.formatted_address,
+        website := business.website,
+        formatted_phone_number := business.formatted_phone_number,
+        latitude := business.geometry.location.lat,
+        longitude := business.geometry.location.lng
+      ).exec
     )
+  }
 
-    val fields = (columns zip values).collect({ case(col, Some(value)) => (col, value) })
-
-    DB.insertInto(google_places, fields)
+  object google_places extends Table {
+    val place_id: Column[String] = VARCHAR(128).PRIMARY_KEY
+    val name: Column[String] = VARCHAR(128)
+    val rating: Column[Option[Double]] = DOUBLE.NULL
+    val user_ratings_total: Column[Option[Long]] = BIGINT.NULL
+    val price_level: Column[Option[Long]] = BIGINT.NULL
+    val formatted_address: Column[String] = VARCHAR(128)
+    val website: Column[Option[String]] = VARCHAR(256).NULL
+    val formatted_phone_number: Column[Option[String]] = VARCHAR(128).NULL
+    val latitude: Column[Double] = DOUBLE
+    val longitude: Column[Double] = DOUBLE
   }
 }

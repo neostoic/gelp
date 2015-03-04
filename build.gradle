@@ -9,6 +9,8 @@ repositories {
 }
 
 dependencies {
+    compile project(':stilts')
+
     compile 'org.scala-lang:scala-library:2.11.1'
     compile group: 'net.databinder.dispatch', name: 'dispatch-core_2.10', version: '0.11.2'
 
