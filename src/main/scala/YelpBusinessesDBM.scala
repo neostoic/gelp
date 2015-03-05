@@ -1,7 +1,7 @@
-import YelpAPI.Business
-import com.clinkle.sql.{INSERT, Table}
+import YelpAPI.{YelpCoordinate, Location, Business}
+import com.clinkle.sql.{SELECT, INSERT, Table}
 
-object YelpDBM {
+object YelpBusinessesDBM {
   def storeResult(business: Business) {
     import yelp_businesses._
     DBRunner.runInNewTransaction(implicit executor =>
@@ -19,6 +19,15 @@ object YelpDBM {
     )
   }
 
+  def getBusinesses: List[Business] = {
+    import yelp_businesses._
+    DBRunner.runInNewTransaction(implicit executor =>
+      SELECT_YELP_BUSINESSES_COLUMNS.exec.map({ case(yID, n, r, rc, p, pc, a, lat, lng) =>
+        Business(yID, n, r, rc, p, Location(pc, a.split(", ").toList, YelpCoordinate(lat, lng)))
+      }).toList
+    )
+  }
+
   object yelp_businesses extends Table {
     val id: Column[String] = VARCHAR(128).PRIMARY_KEY
     val name: Column[String] = VARCHAR(128)
@@ -29,5 +38,17 @@ object YelpDBM {
     val address: Column[String] = VARCHAR(256)
     val latitude: Column[Double] = DOUBLE
     val longitude: Column[Double] = DOUBLE
+
+    val SELECT_YELP_BUSINESSES_COLUMNS = SELECT(
+      id,
+      name,
+      rating,
+      review_count,
+      phone,
+      postal_code,
+      address,
+      latitude,
+      longitude
+    ).FROM(this)
   }
 }

@@ -1,5 +1,5 @@
 import GooglePlacesDBM.google_places
-import YelpDBM.yelp_businesses
+import YelpBusinessesDBM.yelp_businesses
 import com.clinkle.sql.{INSERT, Table}
 
 object CoordinateDBM {

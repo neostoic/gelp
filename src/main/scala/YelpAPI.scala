@@ -42,7 +42,7 @@ object YelpAPI {
     allBusinessResults.foreach(business => {
       println(business.toDisplayString)
 
-      YelpDBM.storeResult(business)
+      YelpBusinessesDBM.storeResult(business)
 
       val coord = business.location.coordinate
       CoordinateDBM.recordYelpMatch(business.id, coord.latitude, coord.longitude, radius)

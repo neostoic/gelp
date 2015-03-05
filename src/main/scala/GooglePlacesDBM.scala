@@ -1,9 +1,10 @@
-import GooglePlacesAPI.Business
-import com.clinkle.sql.{INSERT, Table}
+import GooglePlacesAPI.{PlaceCoordinate, Geometry, Business}
+import com.clinkle.sql._
+import com.clinkle.sql.Expr._
 
 object GooglePlacesDBM {
   def storeResult(business: Business) {
-    import GooglePlacesDBM.google_places._
+    import google_places._
     DBRunner.runInNewTransaction(implicit executor =>
       INSERT.INTO(google_places).SET(
         place_id := business.place_id,
@@ -20,6 +21,15 @@ object GooglePlacesDBM {
     )
   }
 
+  def getBusinesses: List[Business] = {
+    import google_places._
+    DBRunner.runInNewTransaction(implicit executor =>
+      SELECT_GOOGLE_PLACES_COLUMNS.exec.map({ case(pID, n, r, urt, pl, fa, w, fpn, lat, lng) =>
+        Business(pID, n, r, urt.map(BigInt(_)), pl.map(BigInt(_)), fa, w, fpn, Geometry(PlaceCoordinate(lat, lng)))
+      }).toList
+    )
+  }
+
   object google_places extends Table {
     val place_id: Column[String] = VARCHAR(128).PRIMARY_KEY
     val name: Column[String] = VARCHAR(128)
@@ -31,5 +41,18 @@ object GooglePlacesDBM {
     val formatted_phone_number: Column[Option[String]] = VARCHAR(128).NULL
     val latitude: Column[Double] = DOUBLE
     val longitude: Column[Double] = DOUBLE
+
+    val SELECT_GOOGLE_PLACES_COLUMNS = SELECT(
+      place_id,
+      name,
+      rating,
+      user_ratings_total,
+      price_level,
+      formatted_address,
+      website,
+      formatted_phone_number,
+      latitude,
+      longitude
+    ).FROM(this)
   }
 }
