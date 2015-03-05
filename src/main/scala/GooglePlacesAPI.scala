@@ -18,11 +18,11 @@ object GooglePlacesAPI {
   case class Business(place_id: String, name: String, rating: Option[Double], user_ratings_total: Option[BigInt], price_level: Option[BigInt], formatted_address: String, website: Option[String], formatted_phone_number: Option[String], geometry: Geometry)  {
     def toDisplayString =
       s"""
-         |ID: $place_id
          |Name: $name
-         |Rating: $rating
-         |Reviews: $user_ratings_total
+         |Rating: ${rating.getOrElse("N/A")}
+         |Reviews: ${user_ratings_total.getOrElse("N/A")}
          |Phone: ${formatted_phone_number.getOrElse("N/A")}
+         |Address: $formatted_address
        """.stripMargin
   }
 

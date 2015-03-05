@@ -23,11 +23,11 @@ object YelpAPI {
   case class Business(id: String, name: String, rating: Double, review_count: BigInt, phone: Option[String], location: Location) {
     def toDisplayString =
       s"""
-         |ID: $id
          |Name: $name
          |Rating: $rating
          |Reviews: $review_count
          |Phone: ${phone.getOrElse("N/A")}
+         |Address: ${location.address.mkString(", ")}
        """.stripMargin
   }
 
