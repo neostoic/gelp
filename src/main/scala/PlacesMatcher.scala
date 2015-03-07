@@ -1,47 +1,58 @@
 object PlacesMatcher {
+  case class Match(businesses: (GooglePlacesAPI.Business, YelpAPI.Business), score: Int)
+
   def main(args: Array[String]) {
     val googlePlaces = GooglePlacesDBM.getBusinesses // 247 results
     val yelpPlaces = YelpBusinessesDBM.getBusinesses // 288 results
 
-    val matchedByPhone = matchByPhone(googlePlaces, yelpPlaces)
-    println(s"Found ${matchedByPhone.size} matches...\n")
+    val allCombos = for(
+      gPlace <- googlePlaces;
+      yPlace <- yelpPlaces
+    ) yield {
+      val phoneScore = getPhoneScore(gPlace.phone, yPlace.phone)
+      val nameScore = getNameScore(gPlace.name, yPlace.name)
+      val addressScore = getAddressScore(gPlace.formatted_address, yPlace.address)
 
-    val matchedByName = matchByName(googlePlaces, yelpPlaces)
-    println(s"Found ${matchedByName.size} matches...\n")
+      Match((gPlace, yPlace), phoneScore + nameScore + addressScore)
+    }
 
-    val allMatches = (matchedByName ++ matchedByPhone).distinct
-    println(s"Combined, there are now ${allMatches.size} matches...\n")
+    val bestMatches = allCombos.groupBy(_.businesses._1).map(_._2.maxBy(_.score)).filterNot(_.score == 0).toList
+    println(s"Found a total of ${bestMatches.size} potential matches.")
 
-    val unmatchedGooglePlaces = googlePlaces diff allMatches.map(_._1)
-    val unmatchedYelpPlaces = yelpPlaces diff allMatches.map(_._2)
-    // Note: Suzu was the only false negative.
-    println(s"There are ${unmatchedGooglePlaces.size} unmatched Google Places and ${unmatchedYelpPlaces.size} unmatched Yelp Places.")
+    println("Strong matches:")
+    bestMatches.filter(_.score >= 100).sortBy(-_.score)
+      .foreach(m => println(s"${m.score}: ${m.businesses._1.name} -> ${m.businesses._2.name}"))
+
+    println("Weak matches:")
+    bestMatches.filter(_.score < 100).sortBy(-_.score)
+      .foreach(m => println(s"${m.score}: ${m.businesses._1.name} -> ${m.businesses._2.name}"))
   }
 
-  private def matchByPhone(googlePlaces: List[GooglePlacesAPI.Business], yelpPlaces: List[YelpAPI.Business]) = {
-    println("Matching businesses by phone...")
-    val googlePlacesByPhone = googlePlaces.flatMap(gP => gP.formatted_phone_number.map(_.replaceAll("[^\\d]", "")).map((_, gP)))
-    val yelpPlacesByPhone = yelpPlaces.flatMap(yP => yP.phone.map((_, yP)))
+  def getPhoneScore(gPhone: Option[String], yPhone: Option[String]): Int = if (gPhone == yPhone && gPhone.isDefined) 100 else 0
 
-    for (
-      (phone, googlePlace) <- googlePlacesByPhone;
-      yelpPlace <- yelpPlacesByPhone.find(_._1 == phone).map(_._2)
-    ) yield (googlePlace, yelpPlace)
+  def getNameScore(gName: String, yName: String): Int = {
+    def normalize(string: String) = string.toLowerCase.replaceAll("[^a-z0-9]", "")
+    val gNormalized = normalize(gName)
+    val yNormalized = normalize(yName)
+
+    if (gNormalized == yNormalized)
+      70
+    else if (gNormalized.contains(yNormalized) || yNormalized.contains(gNormalized))
+      50
+    else
+      0
   }
 
-  private def matchByName(googlePlaces: List[GooglePlacesAPI.Business], yelpPlaces: List[YelpAPI.Business]) = {
-    println("Matching businesses by name...")
-    val googlePlacesByName = googlePlaces.map(gP => (gP.name, gP))
-    val yelpPlacesByName = yelpPlaces.map(yP => (yP.name, yP))
+  def getAddressScore(gAddress: String, yAddress: String): Int = {
+    def streetAddress(string: String) = """^[0-9]+ [a-z]+\b""".r.findFirstIn(string.toLowerCase)
+    val gNormalized = streetAddress(gAddress)
+    val yNormalized = streetAddress(yAddress)
 
-    // TODO: need to protect against false positive matches, especially for businesses with short names.
-    val googleNameMatches = googlePlacesByName.flatMap({ case(name, gP) =>
-      yelpPlacesByName.find(_._1.contains(name)).map(yPMatch => (gP, yPMatch._2))
-    })
-    val yelpNameMatches = yelpPlacesByName.flatMap({ case(name, yP) =>
-      googlePlacesByName.find(_._1.contains(name)).map(gPMatch => (gPMatch._2, yP))
-    })
-
-    (googleNameMatches ++ yelpNameMatches).distinct
+    if (gNormalized == yNormalized && gNormalized.isDefined)
+      50
+    else if (gNormalized.exists(yAddress.toLowerCase.contains) || yNormalized.exists(gAddress.toLowerCase.contains))
+      40
+    else
+      0
   }
 }
