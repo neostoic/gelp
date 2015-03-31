@@ -16,6 +16,7 @@ object GooglePlacesAPI {
   case class PlaceCoordinate(lat: Double, lng: Double)
   case class Geometry(location: PlaceCoordinate)
   case class Business(place_id: String, name: String, rating: Option[Double], user_ratings_total: Option[BigInt], price_level: Option[BigInt], formatted_address: String, website: Option[String], formatted_phone_number: Option[String], geometry: Geometry)  {
+    def coordinate = Coordinate(geometry.location.lat, geometry.location.lng)
     def phone = formatted_phone_number.map(_.replaceAll("[^\\d]", ""))
     def toDisplayString =
       s"""

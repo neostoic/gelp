@@ -12,8 +12,9 @@ object PlacesMatcher {
       val phoneScore = getPhoneScore(gPlace.phone, yPlace.phone)
       val nameScore = getNameScore(gPlace.name, yPlace.name)
       val addressScore = getAddressScore(gPlace.formatted_address, yPlace.address)
+      val distanceScore = getDistanceScore(gPlace.coordinate, yPlace.coordinate)
 
-      Match((gPlace, yPlace), phoneScore + nameScore + addressScore)
+      Match((gPlace, yPlace), phoneScore + nameScore + addressScore + distanceScore)
     }
 
     val bestMatches = allCombos.groupBy(_.businesses._1).map(_._2.maxBy(_.score)).filterNot(_.score == 0).toList
@@ -21,11 +22,11 @@ object PlacesMatcher {
 
     println("Strong matches:")
     bestMatches.filter(_.score >= 100).sortBy(-_.score)
-      .foreach(m => println(s"${m.score}: ${m.businesses._1.name} -> ${m.businesses._2.name}"))
+      .foreach(m => println(s"${m.score} - ${Math.round(m.score/2.7)}%: ${m.businesses._1.name} -> ${m.businesses._2.name}"))
 
     println("Weak matches:")
     bestMatches.filter(_.score < 100).sortBy(-_.score)
-      .foreach(m => println(s"${m.score}: ${m.businesses._1.name} -> ${m.businesses._2.name}"))
+      .foreach(m => println(s"${m.score} - ${Math.round(m.score/2.7)}%: ${m.businesses._1.name} -> ${m.businesses._2.name}"))
   }
 
   def getPhoneScore(gPhone: Option[String], yPhone: Option[String]): Int = if (gPhone == yPhone && gPhone.isDefined) 100 else 0
@@ -55,4 +56,12 @@ object PlacesMatcher {
     else
       0
   }
+
+  def getDistanceScore(gCoordinate: Coordinate, yCoordinate: Coordinate): Int =
+    gCoordinate.distanceTo(yCoordinate) match {
+      case d if d < 5 => 50
+      case d if d < 15 => 30
+      case d if d < 25 => 10
+      case _ => 0
+    }
 }

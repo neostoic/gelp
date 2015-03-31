@@ -21,6 +21,7 @@ object YelpAPI {
   case class YelpCoordinate(latitude: Double, longitude: Double)
   case class Location(postal_code: String, address: List[String], coordinate: YelpCoordinate)
   case class Business(id: String, name: String, rating: Double, review_count: BigInt, phone: Option[String], location: Location) {
+    def coordinate = Coordinate(location.coordinate.latitude, location.coordinate.longitude)
     def address = location.address.mkString(", ")
     def toDisplayString =
       s"""

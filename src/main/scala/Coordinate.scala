@@ -4,6 +4,9 @@ case class Coordinate(lat: Latitude, long: Longitude) {
 
   def toSearchString = s"${lat.value},${long.value}"
 }
+object Coordinate {
+  def apply(lat: Double, lng: Double): Coordinate = Coordinate(Latitude(lat), Longitude(lng))
+}
 
 case class Latitude(value: Double) {
   // 0.0001 of a degree is approximately 8.8m North/South in San Francisco (i.e. at 37.78 degrees latitude).
