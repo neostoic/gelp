@@ -1,4 +1,6 @@
-import java.sql.{Connection, ResultSet, DriverManager}
+package database
+
+import java.sql.{Connection, DriverManager, ResultSet}
 
 import com.clinkle.sql.{Executor, Node}
 

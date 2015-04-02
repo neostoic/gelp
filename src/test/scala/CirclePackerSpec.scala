@@ -1,3 +1,6 @@
+import nominals.{Longitude, Latitude, Coordinate}
+import utilities.CirclePacker
+
 class CirclePackerSpec extends UnitSpec {
   def coord(lat: Double, long: Double) = Coordinate(Latitude(lat), Longitude(long))
 

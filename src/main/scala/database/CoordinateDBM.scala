@@ -1,6 +1,8 @@
-import GooglePlacesDBM.google_places
-import YelpBusinessesDBM.yelp_businesses
+package database
+
 import com.clinkle.sql.{INSERT, Table}
+import database.GooglePlacesDBM.google_places
+import database.YelpBusinessesDBM.yelp_businesses
 
 object CoordinateDBM {
   def recordGooglePlaceMatch(id: String, lat: Double, lng: Double, rad: Long) {

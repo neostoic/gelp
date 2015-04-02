@@ -1,3 +1,7 @@
+package utilities
+
+import nominals.Coordinate
+
 object CirclePacker {
 
   def generateSearchCoordinates(vertices: List[Coordinate], meshRadius: Int): List[Coordinate] = {

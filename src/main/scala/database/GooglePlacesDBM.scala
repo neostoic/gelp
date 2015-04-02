@@ -1,6 +1,9 @@
-import GooglePlacesAPI.{PlaceCoordinate, Geometry, Business}
-import com.clinkle.sql._
+package database
+
+import external.GooglePlacesAPI
+import GooglePlacesAPI.{Business, Geometry, PlaceCoordinate}
 import com.clinkle.sql.Expr._
+import com.clinkle.sql._
 
 object GooglePlacesDBM {
   def storeResult(business: Business) {

@@ -1,3 +1,5 @@
+package nominals
+
 case class Coordinate(lat: Latitude, long: Longitude) {
   def distanceTo(other: Coordinate): Double =
     Math.sqrt(Math.pow(lat - other.lat, 2) + Math.pow(long - other.long, 2))

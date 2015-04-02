@@ -1,3 +1,9 @@
+package utilities
+
+import database.{GooglePlacesDBM, YelpBusinessesDBM}
+import external.{GooglePlacesAPI, YelpAPI}
+import nominals.Coordinate
+
 object PlacesMatcher {
   case class Match(businesses: (GooglePlacesAPI.Business, YelpAPI.Business), score: Int)
 

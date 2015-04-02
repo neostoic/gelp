@@ -1,5 +1,8 @@
-import YelpAPI.{YelpCoordinate, Location, Business}
-import com.clinkle.sql.{SELECT, INSERT, Table}
+package database
+
+import external.YelpAPI
+import YelpAPI.{Business, Location, YelpCoordinate}
+import com.clinkle.sql.{INSERT, SELECT, Table}
 
 object YelpBusinessesDBM {
   def storeResult(business: Business) {

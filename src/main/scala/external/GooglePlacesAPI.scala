@@ -1,5 +1,9 @@
+package external
+
+import dispatch.Defaults._
 import dispatch._
-import Defaults._
+import database.{CoordinateDBM, GooglePlacesDBM}
+import nominals.Coordinate
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
 

@@ -1,3 +1,7 @@
+import external.{YelpAPI, GooglePlacesAPI}
+import nominals.{Longitude, Latitude, Coordinate}
+import utilities.CirclePacker
+
 import scala.util.Random._
 
 object Gelp {

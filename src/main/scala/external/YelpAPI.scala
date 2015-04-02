@@ -1,7 +1,11 @@
-import org.scribe.builder.ServiceBuilder
-import org.scribe.model._
+package external
+
+import database.{CoordinateDBM, YelpBusinessesDBM}
+import nominals.Coordinate
 import org.json4s._
 import org.json4s.native.JsonMethods._
+import org.scribe.builder.ServiceBuilder
+import org.scribe.model._
 
 object YelpAPI {
 
@@ -33,10 +37,10 @@ object YelpAPI {
        """.stripMargin
   }
 
-  def runYelpSearch(coord: Coordinate, radius: Int = 50) {
+  def runYelpSearch(searchCoord: Coordinate, radius: Int = 50) {
     println("\nLet's get this Yelp party started!")
 
-    val jsonResp = send(s"$YELP_SEARCH_URL?${yelpQueryParams(coord, radius)}")
+    val jsonResp = send(s"$YELP_SEARCH_URL?${yelpQueryParams(searchCoord, radius)}")
 
     implicit val formats = DefaultFormats
     val allBusinessResults = (jsonResp \ "businesses").extract[List[Business]]
@@ -45,9 +49,7 @@ object YelpAPI {
       println(business.toDisplayString)
 
       YelpBusinessesDBM.storeResult(business)
-
-      val coord = business.location.coordinate
-      CoordinateDBM.recordYelpMatch(business.id, coord.latitude, coord.longitude, radius)
+      CoordinateDBM.recordYelpMatch(business.id, searchCoord, radius)
     })
   }
 
