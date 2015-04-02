@@ -1,6 +1,6 @@
 package utilities
 
-import database.{GooglePlacesDBM, YelpBusinessesDBM}
+import database.{MatchesDBM, GooglePlacesDBM, YelpBusinessesDBM}
 import external.{GooglePlacesAPI, YelpAPI}
 import nominals.Coordinate
 
@@ -28,7 +28,11 @@ object PlacesMatcher {
 
     println("Strong matches:")
     bestMatches.filter(_.score >= 100).sortBy(-_.score)
-      .foreach(m => println(s"${m.score} - ${Math.round(m.score/2.7)}%: ${m.businesses._1.name} -> ${m.businesses._2.name}"))
+      .foreach(m => {
+        val percentMatch = Math.round(m.score / 2.7).toShort // 270 total points.
+        println(s"${m.score} - $percentMatch%: ${m.businesses._1.name} -> ${m.businesses._2.name}")
+        MatchesDBM.recordMatch(m.businesses._1.place_id, m.businesses._2.id, m.score, percentMatch)
+      })
 
     println("Weak matches:")
     bestMatches.filter(_.score < 100).sortBy(-_.score)
