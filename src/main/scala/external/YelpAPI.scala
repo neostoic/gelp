@@ -1,5 +1,6 @@
 package external
 
+import config.ConfigLoader
 import database.{CoordinateDBM, YelpBusinessesDBM}
 import nominals.Coordinate
 import org.json4s._
@@ -8,11 +9,8 @@ import org.scribe.builder.ServiceBuilder
 import org.scribe.model._
 
 object YelpAPI {
+  import ConfigLoader.Yelp._
 
-  private val CONSUMER_KEY = ""
-  private val CONSUMER_SECRET = ""
-  private val TOKEN = ""
-  private val TOKEN_SECRET = ""
   private val YELP_SEARCH_URL = "http://api.yelp.com/v2/search"
 
   private lazy val service = new ServiceBuilder()

@@ -1,8 +1,9 @@
 package external
 
+import config.ConfigLoader
+import database.{CoordinateDBM, GooglePlacesDBM}
 import dispatch.Defaults._
 import dispatch._
-import database.{CoordinateDBM, GooglePlacesDBM}
 import nominals.Coordinate
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods._
@@ -10,9 +11,8 @@ import org.json4s.native.JsonMethods._
 import scala.util.Random._
 
 object GooglePlacesAPI {
+  import ConfigLoader.Google._
 
-  private val BROWSER_API_KEY = ""
-  private val SERVER_API_KEY = ""
   private val NEARBY_SEARCH_URL = url("https://maps.googleapis.com/maps/api/place/nearbysearch/json")
   private val PLACE_DETAILS_URL = url("https://maps.googleapis.com/maps/api/place/details/json")
 
