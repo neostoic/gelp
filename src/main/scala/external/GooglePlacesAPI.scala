@@ -32,10 +32,10 @@ object GooglePlacesAPI {
        """.stripMargin
   }
 
-  def runGoogleSearch(coord: Coordinate, radius: Int = 50) {
+  def runGoogleSearch(searchCoord: Coordinate, radius: Int = 50) {
     println("\nLet's get this Google party started!")
 
-    val response = send(searchRequest(coord, radius))
+    val response = send(searchRequest(searchCoord, radius))
 
     implicit val formats = DefaultFormats
     val placeIDs = (response \ "results").extract[List[PlaceID]]
@@ -49,9 +49,7 @@ object GooglePlacesAPI {
       println(business.toDisplayString)
 
       GooglePlacesDBM.storeResult(business)
-
-      val coord = business.geometry.location
-      CoordinateDBM.recordGooglePlaceMatch(business.place_id, coord.lat, coord.lng, radius)
+      CoordinateDBM.recordGooglePlaceMatch(business.place_id, searchCoord, radius)
     })
   }
 

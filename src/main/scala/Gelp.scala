@@ -1,5 +1,5 @@
-import external.{YelpAPI, GooglePlacesAPI}
-import nominals.{Longitude, Latitude, Coordinate}
+import external.{GooglePlacesAPI, YelpAPI}
+import nominals.{Coordinate, Latitude, Longitude}
 import utilities.CirclePacker
 
 import scala.util.Random._
@@ -14,17 +14,22 @@ object Gelp {
         (37.77691, -122.44492)  // SW
       ).map(coord => Coordinate(Latitude(coord._1), Longitude(coord._2)))
 
-    val coordinatesToSearch = CirclePacker.generateSearchCoordinates(vertices, meshRadius = 75)
+    val meshRadius = 75
+    val coordinatesToSearch = CirclePacker.generateSearchCoordinates(vertices, meshRadius)
     val numSearches = coordinatesToSearch.size
 
     try {
       shuffle(coordinatesToSearch).zipWithIndex.foreach({ case(coord, i) =>
         println(s"\nProgress: ${(i.toFloat / numSearches) * 100}%, Remaining: ${numSearches - i}\n")
-        println(s"Running search at coordinate: ${coord.toSearchString}")
-        YelpAPI.runYelpSearch(coord, radius = 75)
-        GooglePlacesAPI.runGoogleSearch(coord, radius = 75)
-        Thread.sleep(nextInt(22000) + 2000)
+        search(coord, meshRadius)
       })
     } finally { sys.exit() }
+  }
+
+  def search(coord: Coordinate, meshRadius: Int) {
+    println(s"Running search at coordinate: ${coord.toSearchString}")
+    YelpAPI.runYelpSearch(coord, radius = meshRadius)
+    GooglePlacesAPI.runGoogleSearch(coord, radius = meshRadius)
+    Thread.sleep(nextInt(22000) + 2000)
   }
 }

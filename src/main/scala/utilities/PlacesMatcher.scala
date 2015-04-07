@@ -8,8 +8,8 @@ object PlacesMatcher {
   case class Match(businesses: (GooglePlacesAPI.Business, YelpAPI.Business), score: Int)
 
   def main(args: Array[String]) {
-    val googlePlaces = GooglePlacesDBM.getBusinesses // 247 results
-    val yelpPlaces = YelpBusinessesDBM.getBusinesses // 288 results
+    val googlePlaces = GooglePlacesDBM.getBusinesses
+    val yelpPlaces = YelpBusinessesDBM.getBusinesses
 
     val allCombos = for(
       gPlace <- googlePlaces;

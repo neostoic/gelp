@@ -17,9 +17,9 @@ object CirclePacker {
 
   def getEncompassingRectangle(vertices: List[Coordinate]): (Coordinate, Coordinate) = {
     val lats = vertices.map(_.lat)
-    val longs = vertices.map(_.long)
+    val lngs = vertices.map(_.lng)
 
-    (Coordinate(lats.minBy(_.value), longs.minBy(_.value)), Coordinate(lats.maxBy(_.value), longs.maxBy(_.value)))
+    (Coordinate(lats.minBy(_.value), lngs.minBy(_.value)), Coordinate(lats.maxBy(_.value), lngs.maxBy(_.value)))
   }
   
   def meshRectangle(minCoord: Coordinate, maxCoord: Coordinate, meshRadius: Int): List[Coordinate] = {
@@ -27,9 +27,9 @@ object CirclePacker {
     val meshSize = Math.sqrt(2) * meshRadius
 
     val latCoords = Stream.iterate(minCoord.lat)(_ + meshSize).takeWhile(_ < maxCoord.lat).toList
-    val longCoords = Stream.iterate(minCoord.long)(_ + meshSize).takeWhile(_ < maxCoord.long).toList
+    val lngCoords = Stream.iterate(minCoord.lng)(_ + meshSize).takeWhile(_ < maxCoord.lng).toList
 
-    for { lat <- latCoords; long <- longCoords } yield Coordinate(lat, long)
+    for { lat <- latCoords; lng <- lngCoords } yield Coordinate(lat, lng)
   }
 
   def maskMesh(encompassingMesh: List[Coordinate], mask: List[Coordinate]): List[Coordinate] =
@@ -38,10 +38,10 @@ object CirclePacker {
   def pointInPolygon(point: Coordinate, vertices: List[Coordinate]): Boolean = {
     (vertices.last :: vertices).sliding(2).foldLeft(false) { case (cond, List(i, j)) =>
       val insideLatBounds = (i.lat > point.lat) != (j.lat > point.lat)
-      val longValueOnBoundary = i.long.value + (j.long.value - i.long.value) * (point.lat.value - i.lat.value) / (j.lat.value - i.lat.value)
-      val insideLongBounds = point.long.value < longValueOnBoundary
+      val lngValueOnBoundary = i.lng.value + (j.lng.value - i.lng.value) * (point.lat.value - i.lat.value) / (j.lat.value - i.lat.value)
+      val insideLngBounds = point.lng.value < lngValueOnBoundary
 
-      if (insideLatBounds && insideLongBounds) !cond else cond
+      if (insideLatBounds && insideLngBounds) !cond else cond
     }
   }
 }

@@ -22,12 +22,6 @@ dependencies {
     compile group: 'org.scribe', name: 'scribe', version: '1.3.6'
 
     testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '2.2.1'
-}
 
-task hello << {
-    println 'Hello world!'
-}
-
-task goodbye(dependsOn: hello) << {
-    println "And good bye."
+    testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '2.2.1'
 }

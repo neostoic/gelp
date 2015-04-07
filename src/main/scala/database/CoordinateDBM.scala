@@ -3,27 +3,28 @@ package database
 import com.clinkle.sql.{INSERT, Table}
 import database.GooglePlacesDBM.google_places
 import database.YelpBusinessesDBM.yelp_businesses
+import nominals.Coordinate
 
 object CoordinateDBM {
-  def recordGooglePlaceMatch(id: String, lat: Double, lng: Double, rad: Long) {
+  def recordGooglePlaceMatch(id: String, coord: Coordinate, rad: Long) {
     import google_place_matches._
     DBRunner.runInNewTransaction(implicit executor =>
       INSERT.INTO(google_place_matches).SET(
         place_id := id,
-        latitude := lat,
-        longitude := lng,
+        latitude := coord.lat.value,
+        longitude := coord.lng.value,
         radius := rad
       ).exec
     )
   }
 
-  def recordYelpMatch(yelpID: String, lat: Double, lng: Double, rad: Long) {
+  def recordYelpMatch(yelpID: String, coord: Coordinate, rad: Long) {
     import yelp_business_matches._
     DBRunner.runInNewTransaction(implicit executor =>
       INSERT.INTO(yelp_business_matches).SET(
         id := yelpID,
-        latitude := lat,
-        longitude := lng,
+        latitude := coord.lat.value,
+        longitude := coord.lng.value,
         radius := rad
       ).exec
     )

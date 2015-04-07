@@ -1,10 +1,10 @@
 package nominals
 
-case class Coordinate(lat: Latitude, long: Longitude) {
+case class Coordinate(lat: Latitude, lng: Longitude) {
   def distanceTo(other: Coordinate): Double =
-    Math.sqrt(Math.pow(lat - other.lat, 2) + Math.pow(long - other.long, 2))
+    Math.sqrt(Math.pow(lat - other.lat, 2) + Math.pow(lng - other.lng, 2))
 
-  def toSearchString = s"${lat.value},${long.value}"
+  def toSearchString = s"${lat.value},${lng.value}"
 }
 object Coordinate {
   def apply(lat: Double, lng: Double): Coordinate = Coordinate(Latitude(lat), Longitude(lng))
